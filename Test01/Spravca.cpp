@@ -103,7 +103,7 @@ boolean Spravca::pridatObjednavku(int pGramy, string pOdkial, int pVzdialenostOd
 {
 	int indexOdkial = -1;
 	int indexKam = -1;
-	(*aObjednavky).add(new Objednavka(pGramy, pOdkial, pVzdialenostOdos, pKam, pVzdialenostPrijmatela));
+	(*aObjednavky).add(new Objednavka(pGramy, pOdkial, pVzdialenostOdos, pKam, pVzdialenostPrijmatela, aAktualnyCas));
 	for (size_t i = 0; i < (*aSklady).size(); i++) {
 		if (!(*aSklady)[i]->getId().compare(pOdkial))
 			indexOdkial = i;
@@ -114,7 +114,7 @@ boolean Spravca::pridatObjednavku(int pGramy, string pOdkial, int pVzdialenostOd
 	}
 	if (indexOdkial >= 0 && indexKam >= 0)
 	{
-		if ((*aSklady)[indexOdkial]->pridatObjednavku((*aObjednavky)[(*aObjednavky).size() - 1], 0, aAktualnyCas) && (*aSklady)[indexKam]->pridatObjednavku((*aObjednavky)[(*aObjednavky).size() - 1], 1, aAktualnyCas))
+		if ((*aSklady)[indexOdkial]->pridatObjednavku((*aObjednavky)[(*aObjednavky).size() - 1], 0) && (*aSklady)[indexKam]->pridatObjednavku((*aObjednavky)[(*aObjednavky).size() - 1], 1))
 		{
 			cout << "Objednavka prijata na spracovanie" << endl;
 		}
@@ -122,6 +122,10 @@ boolean Spravca::pridatObjednavku(int pGramy, string pOdkial, int pVzdialenostOd
 		{
 			cout << "Objednavka nemohla byt spracovana" << endl;
 		}
+	}
+	else
+	{
+		cout << "Zadali ste zle udaje" << endl;
 	}
 	//int casVyzdvihnutia =
 

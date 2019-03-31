@@ -84,13 +84,18 @@ void Spravca::vypisatDronovPodlaPrekladiska(const string pPrekladisko)
 
 void Spravca::plus1hodina()
 {
-	for (size_t i = 0; i < 600; i++)
+	for (size_t i = 0; i < 3600; i++)
 	{
 		aAktualnyCas++;
-		for (size_t i = 0; i < aSklady->size(); i++)
+		for (Sklad *sklad : (*aSklady))
 		{
-			(*aSklady)[i]->tik();
+			sklad->tik();
 		}
+	}
+	if ((aAktualnyCas - 75600) % 75600 == 0)
+	{
+		aAktualnyCas += 36000;
+		zvozZasielok();
 	}
 }
 
@@ -101,9 +106,10 @@ void Spravca::koniec()
 
 boolean Spravca::pridatObjednavku(int pGramy, string pOdkial, int pVzdialenostOdos, string pKam, int pVzdialenostPrijmatela)
 {
+
 	int indexOdkial = -1;
 	int indexKam = -1;
-	(*aObjednavky).add(new Objednavka(pGramy, pOdkial, pVzdialenostOdos, pKam, pVzdialenostPrijmatela, aAktualnyCas));
+	(*aObjednavky).add(new Objednavka(pGramy, pOdkial, pVzdialenostOdos, pKam, pVzdialenostPrijmatela, aAktualnyCas, (*aObjednavky).size()));
 	for (size_t i = 0; i < (*aSklady).size(); i++) {
 		if (!(*aSklady)[i]->getId().compare(pOdkial))
 			indexOdkial = i;
@@ -114,20 +120,115 @@ boolean Spravca::pridatObjednavku(int pGramy, string pOdkial, int pVzdialenostOd
 	}
 	if (indexOdkial >= 0 && indexKam >= 0)
 	{
-		if ((*aSklady)[indexOdkial]->pridatObjednavku((*aObjednavky)[(*aObjednavky).size() - 1], 0) && (*aSklady)[indexKam]->pridatObjednavku((*aObjednavky)[(*aObjednavky).size() - 1], 1))
+		if ((*aSklady)[indexOdkial]->getVozidlo() == nullptr)
+		{
+			(*aSklady)[indexOdkial]->priraditVozidlo(*aVp->vyberVozidlo());
+		}
+		if ((*aSklady)[indexOdkial]->pridatObjednavku((*aObjednavky)[(*aObjednavky).size() - 1], 0, aAktualnyCas) && (*aSklady)[indexKam]->pridatObjednavku((*aObjednavky)[(*aObjednavky).size() - 1], 1, aAktualnyCas))
 		{
 			cout << "Objednavka prijata na spracovanie" << endl;
 		}
 		else
 		{
 			cout << "Objednavka nemohla byt spracovana" << endl;
+			(*aObjednavky).removeAt(aObjednavky->size() - 1);
 		}
 	}
 	else
 	{
 		cout << "Zadali ste zle udaje" << endl;
+		(*aObjednavky).removeAt(aObjednavky->size() - 1);
 	}
 	//int casVyzdvihnutia =
 
 	return false;
+}
+
+void Spravca::ulozNacitaj(string pTyp, string pMenoSuboru)
+{
+	if (pTyp == "u")
+	{
+		ofstream vystup(pMenoSuboru);
+		vystup << aVp->ulozVozidla();
+		for (Sklad *sklad : (*aSklady))
+		{
+			vystup << sklad->ulozDrony() << endl;
+		}
+		vystup.close();
+	}
+	else if (pTyp == "n") 
+	{
+		ifstream vstup(pMenoSuboru);
+		string word;
+		string pom1;
+		string pom2;
+		string pom3;
+		if (vstup.is_open())
+		{
+			while (vstup >> word)
+			{
+				if (word == "0")
+				{
+					vstup >> pom1;
+					vstup >> pom2;
+					pridatVozidlo(stoi(pom1), stoi(pom2));
+				}
+				else 
+				{
+					vstup >> pom1;
+					vstup >> pom2;
+					vstup >> pom3;
+					for (size_t i = 0; i < stoi(pom2); i++)
+					{
+						pridatDrona(pom1, 1);
+					}
+					for (size_t i = 0; i < stoi(pom3); i++)
+					{
+						pridatDrona(pom1, 2);
+					}
+				}
+			}
+		}
+		else cout << "Subor sa nenasiel." << endl;
+	}
+}
+
+void Spravca::zvozZasielok()
+{
+	aVp->koniecDna();
+	for (Sklad *sklad : (*aSklady))
+	{
+		sklad->odobratVozidlo();
+	}
+	for (Objednavka * objednavka : (*aObjednavky))
+	{
+		if (objednavka->getStav() == "vLokalnomPrekladisku")
+		{
+			objednavka->setStav("vCentralnomSklade");
+		}
+	}
+	aVp->sortVozidla();
+	for (Objednavka * objednavka : (*aObjednavky))
+	{
+		if (objednavka->getStav() == "vCentralnomSklade")
+		{
+			for (size_t i = 0; i < aVp->getPocetVozidiel() - 1; i++)
+			{
+				if (aVp->vyberVozidloNaRozvoz(i)->getZostavajucuNosnost() - objednavka->getHmotnost() >= 0)
+				{
+					aVp->vyberVozidloNaRozvoz(i)->uberNosnost(objednavka->getHmotnost());
+					objednavka->setStav("zasielkaCakaNaDorucenie");
+					for (size_t j = 0; j < (*aSklady).size(); j++) {
+						if ((*aSklady)[j]->getId() == objednavka->getKam())
+						{
+							(*aSklady)[j]->priraditVozidlo(*aVp->vyberVozidloNaRozvoz(i));
+							(*aSklady)[j]->pridatObjednavku(objednavka, 1, aAktualnyCas);
+						}
+					}
+					break;
+				}
+			}
+		}
+	}
+	aVp->vylozAuta();
 }

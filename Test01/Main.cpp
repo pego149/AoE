@@ -52,24 +52,23 @@ void subMenu5() {
 	spravca.pridatObjednavku(gramy, odkial, odialm, kam, kamm);
 }
 
+void subMenuc() {
+	string typ;
+	string menoSuboru;
+	cout << "Nacitat - n / Ulozit - u:";
+	cin >> typ;
+	cout << "Zvolte meno suboru:";
+	cin >> menoSuboru;
+	spravca.ulozNacitaj(typ, menoSuboru);
+}
+
 int main() {
 	initHeapMonitor();
-	spravca.pridatVozidlo(1, 2);
-	spravca.pridatVozidlo(1, 5);
-	spravca.pridatVozidlo(1, 1);
-	spravca.pridatVozidlo(2, 8);
-	spravca.pridatVozidlo(1, 2);
-	spravca.pridatVozidlo(1, 2);
-	spravca.pridatVozidlo(1, 2);
-	spravca.pridatDrona("ZA", 1);
-	spravca.pridatDrona("BB", 1);
-	spravca.pridatDrona("CA", 1);
-	spravca.pridatDrona("KA", 1);
 
 	string in = "";
 	while (spravca.getAktivne())
 	{
-		cout << "a-zobrazit cas, b-posun casu, c-zatial nic, e-koniec" << endl
+		cout << "a-zobrazit cas, b-posun casu, c-save/load, e-koniec" << endl
 			<< "1-pridat vozidlo, 2-vypisat vozidla, 3-pridat drona do prekladiska, 4-vypisat drony v prekladisku," << endl 
 			<< "5-pridat objednavku" << endl;
 		cin >> in;
@@ -96,6 +95,10 @@ int main() {
 		else if (in == "b")
 		{
 			spravca.plus1hodina();
+		}
+		else if (in == "c")
+		{
+			subMenuc();
 		}
 		else if (in == "e")
 		{

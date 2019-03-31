@@ -45,13 +45,16 @@ string Dron::toString()
 void Dron::priraditObjednavku(Objednavka & pObj, int pTypObj) //typ: ak 0 odoslanie,1 dorucenie
 {
 	aAktualnaObjednavka = &pObj;
-	if (aAktualnaObjednavka->getStav() == "naDorucenie")
+	aTypZasielky = pTypObj;
+	if (aAktualnaObjednavka->getStav() == "zasielkaCakaNaDorucenie")
 	{
-		aAktualnaObjednavka->setStav("dronDorucujeZasielku");
+		aAktualnaObjednavka->setStav("dronDorucujeZasielku"); 
+		cout << "Dron dorucuje zasielku c." << aAktualnaObjednavka->getId() << endl;
 	}
 	else
 	{
-		aAktualnaObjednavka->setStav("dronIdePoZasielku");
+		aAktualnaObjednavka->setStav("dronIdePoZasielku"); 
+		cout << "Dron ide po zasielku c." << aAktualnaObjednavka->getId() << endl;
 	}
 	if (pTypObj == 0)
 	{
@@ -81,17 +84,20 @@ void Dron::tik()
 			aPocetPercentBaterky--;
 			aIter = 0;
 		}
-		if (aNavratDronuZCesty < aTrvanieCestyVSek / 2 && aAktualnaObjednavka->getStav().compare("dronIdePoZasielku"))
+		if (aNavratDronuZCesty < aTrvanieCestyVSek / 2 && aAktualnaObjednavka->getStav() == "dronIdePoZasielku")
 		{
 			aAktualnaObjednavka->setStav("DronVezieZasielkuDoPrekladiska");
+			cout << "Dron vezie zasielku c." << aAktualnaObjednavka->getId() << " do prekladiska." << endl;
 		}
-		else if (aNavratDronuZCesty < aTrvanieCestyVSek / 2 && aAktualnaObjednavka->getStav().compare("zasielkaCakaNaDorucenie"))
+		else if (aNavratDronuZCesty < aTrvanieCestyVSek / 2 && aAktualnaObjednavka->getStav() == "dronDorucujeZasielku")
 		{
 			aAktualnaObjednavka->setStav("Dorucena");
+			cout << "Zasielka c." << aAktualnaObjednavka->getId() << " bola dorucena." << endl;
 		}
-		if (aNavratDronuZCesty == 0)
+		if (aNavratDronuZCesty == 0 && aTypZasielky == 0)
 		{
 			aAktualnaObjednavka->setStav("vLokalnomPrekladisku");
+			cout << "Zasielka c." << aAktualnaObjednavka->getId() << " bola dorucena do lokalneho prekladiska: " << aAktualnaObjednavka->getOdkial() << endl;
 			odobratObjednavku();
 		}
 	}
@@ -123,4 +129,51 @@ void Dron::tik()
 		}
 	}
 	aIter++;
+}
+
+int Dron::getCasPotrebnyPreNabitieNaDoletDoMetrovPoDolete(int pMetre)
+{
+	if (aAktualnaObjednavka != nullptr)
+	{
+		int iter = 0;
+		int pocetPercPoDolete = (aMaxDobaLetu - aTrvanieCestyVSek) / aMaxDobaLetu * 100;
+		for (size_t i = 0; i < aCasPotrebnyNa10Percent * 10; i++)
+		{
+			if (aTyp == 1 && iter == 180)
+			{
+				if (pocetPercPoDolete < 100)
+				{
+					pocetPercPoDolete += 10;
+				}
+				if (pocetPercPoDolete > 100)
+				{
+					pocetPercPoDolete = 100;
+				}
+				iter = 0;
+			}
+			else if (aTyp == 2 && iter == 300)
+			{
+				if (pocetPercPoDolete < 100)
+				{
+					pocetPercPoDolete += 10;
+				}
+				if (pocetPercPoDolete > 100)
+				{
+					pocetPercPoDolete = 100;
+				}
+				iter = 0;
+			}
+			if (pMetre <= aMaxDoletVMetroch / 100 * pocetPercPoDolete)
+			{
+				return i;
+			}
+			iter++;
+		}
+	}
+	return 0;
+}
+
+int Dron::getCasLetu1Cesta(int pMetre)
+{
+	return pMetre / aPriemernaRychlost;
 }

@@ -33,19 +33,24 @@ void Sklad::vypisatDrony()
 	}
 }
 
-boolean Sklad::pridatObjednavku(Objednavka *&pObj, int pTyp)
+boolean Sklad::pridatObjednavku(Objednavka *&pObj, int pTyp, int pAktualnyCas)
 {
 	sortDrony();
-	if (pTyp == 0 && pObj->getStav() == "naVyzdvihnutie") {
+	if (pTyp == 0 && pObj->getStav() == "naVyzdvihnutie" && aPriradeneVozidlo->getZostavajucuNosnost() - pObj->getHmotnost() >= 0) {
 		int i = vyberDronaPreObjednavkuZDostupnych(pObj->getHmotnost(), pObj->getVzdialenostOdosielatela());
 		if (i >= 0)
 		{
 			(*aDrony)[i]->priraditObjednavku(*pObj, 0);
+			aPriradeneVozidlo->uberNosnost(pObj->getHmotnost());
+			aPriradeneVozidlo->pridajRegion();
 			return true;
 		}
 		else if (overObjednavku(pObj->getHmotnost(), pObj->getVzdialenostOdosielatela()))
 		{
+
 			(*aObjednavkyVyzdvihnutie).push(pObj);
+			aPriradeneVozidlo->uberNosnost(pObj->getHmotnost());
+			aPriradeneVozidlo->pridajRegion();
 			return true;
 		}
 	}
@@ -105,6 +110,7 @@ void Sklad::sortDrony()
 
 void Sklad::tik()
 {
+	skusPriraditObjednavkuZFronty();
 	for (Dron *dron : (*aDrony))
 	{
 		dron->tik();
@@ -121,4 +127,53 @@ boolean Sklad::overObjednavku(int pGramy, int pVzdialenost)
 		}
 	}
 	return false;
+}
+
+void Sklad::skusPriraditObjednavkuZFronty()
+{
+	if (!(*aObjednavkyVyzdvihnutie).isEmpty())
+	{
+		sortDrony();
+		int i = vyberDronaPreObjednavkuZDostupnych((*aObjednavkyVyzdvihnutie).peek()->getHmotnost(), (*aObjednavkyVyzdvihnutie).peek()->getVzdialenostOdosielatela());
+		if (i >= 0)
+		{
+			(*aDrony)[i]->priraditObjednavku(*(*aObjednavkyVyzdvihnutie).peek(), 0);
+			(*aObjednavkyVyzdvihnutie).pop();
+		}
+	}
+	if (!(*aObjednavkyDorucenie).isEmpty())
+	{
+		sortDrony();
+		int i = vyberDronaPreObjednavkuZDostupnych((*aObjednavkyDorucenie).peek()->getHmotnost(), (*aObjednavkyDorucenie).peek()->getVzdialenostOdosielatela());
+		if (i >= 0)
+		{
+			(*aDrony)[i]->priraditObjednavku(*(*aObjednavkyDorucenie).peek(), 1);
+			(*aObjednavkyDorucenie).pop();
+		}
+	}
+}
+
+int Sklad::vyberDronaKtorySaNajskorVrati()
+{
+	return 0;
+}
+
+string Sklad::ulozDrony()
+{
+	string out = "1 " + aId;
+	int typ1 = 0;
+	int typ2 = 0;
+	for (Dron *dron : (*aDrony))
+	{
+		if (dron->getTyp() == 1)
+		{
+			typ1++;
+		}
+		else
+		{
+			typ2++;
+		}
+	}
+	out += " " + to_string(typ1) + " " + to_string(typ2);
+	return out;
 }

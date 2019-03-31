@@ -15,8 +15,9 @@ class Objednavka
 	int aCasDorucenia = 0;
 	int aCasPridania = 0;
 	string aStav = "naVyzdvihnutie";
+	int aId = 0;
 public:
-	Objednavka(int pHmotnost, string pOdkial, int pVzdialenostOdos, string pKam, int pVzdialenostPrijmatela, int pCasPridania);
+	Objednavka(int pHmotnost, string pOdkial, int pVzdialenostOdos, string pKam, int pVzdialenostPrijmatela, int pCasPridania, int pId);
 	~Objednavka();
 	int getVzdialenostOdosielatela() { return aVzdialenostOdosielatela; }
 	int getVzdialenostAdresata() { return aVzdialenostAdresata; }
@@ -27,5 +28,8 @@ public:
 	string getStav() { return aStav; }
 	int getHmotnost() { return aHmotnostVGramoch; }
 	void setStav(string pInput) { aStav = pInput; }
+	int getId() { return aId; }
+	string getOdkial() { return aOdkial; }
+	string getKam() { return aKam; }
 };
 

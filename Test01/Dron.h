@@ -22,6 +22,7 @@ class Dron
 	int aNavratDronuZCesty = 0;
 	int aTrvanieCestyVSek = 0;
 	int aIter = 0;
+	int aTypZasielky = -1;
 	Objednavka* aAktualnaObjednavka = nullptr;
 public:
 	Dron(const int pCasZaradenia, const int pSerioveCislo, const int pTyp,
@@ -43,5 +44,7 @@ public:
 	void odobratObjednavku() { aAktualnaObjednavka = nullptr; };
 	void tik();
 	int getNavratDronuZCesty() { return aNavratDronuZCesty; }
+	int getCasPotrebnyPreNabitieNaDoletDoMetrovPoDolete(int pMetre);
+	int getCasLetu1Cesta(int pMetre);
 };
 

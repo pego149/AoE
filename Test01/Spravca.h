@@ -1,4 +1,5 @@
 #include "VozovyPark.h"
+#include <fstream>
 
 #pragma once
 class Spravca
@@ -21,5 +22,7 @@ public:
 	void koniec();
 	boolean pridatObjednavku(int pGramy, string pOdkial, int pVzdialenostOdos, string pKam, int pVzdialenostPrijmatela);
 	boolean getAktivne() { return aAktivne; }
+	void ulozNacitaj(string pTyp, string pMenoSuboru);
+	void zvozZasielok();
 };
 

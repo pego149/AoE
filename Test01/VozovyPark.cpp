@@ -39,3 +39,47 @@ void VozovyPark::vypisatVozidla()
 		cout << (*aVozidla)[i]->toString() << endl;
 	}
 }
+
+string VozovyPark::ulozVozidla()
+{
+	string str = "";
+	for (size_t i = 0; i < (*aVozidla).size(); i++)
+	{
+		str += "0 " + (*aVozidla)[i]->ulozit() + "\n";
+	}
+	return str;
+}
+
+void VozovyPark::sortVozidla()
+{
+	for (int i = 0; i < aVozidla->size(); i++)
+	{
+		for (int j = i + 1; j < aVozidla->size(); j++)
+		{
+			if ((*aVozidla)[i]->getCelkovePrevadzkoveNaklady() > (*aVozidla)[j]->getCelkovePrevadzkoveNaklady())
+			{
+				structures::DSRoutines::swap((*aVozidla)[i], (*aVozidla)[j]);
+			}
+			else if ((*aVozidla)[i]->getCelkovePrevadzkoveNaklady() == (*aVozidla)[j]->getCelkovePrevadzkoveNaklady() && (*aVozidla)[i]->getZostavajucuNosnost() < (*aVozidla)[j]->getZostavajucuNosnost())
+			{
+				structures::DSRoutines::swap((*aVozidla)[i], (*aVozidla)[j]);
+			}
+		}
+	}
+}
+
+void VozovyPark::koniecDna()
+{
+	for(Vozidlo* vozidlo : (*aVozidla))
+	{
+		vozidlo->koniecDna();
+	}
+}
+
+void VozovyPark::vylozAuta()
+{
+	for (Vozidlo* vozidlo : (*aVozidla))
+	{
+		vozidlo->vyloz();
+	}
+}

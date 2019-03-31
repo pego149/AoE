@@ -2,7 +2,7 @@
 
 
 
-Objednavka::Objednavka(int pHmotnost, string pOdkial, int pVzdialenostOdos, string pKam, int pVzdialenostPrijmatela, int pCasPridania)
+Objednavka::Objednavka(int pHmotnost, string pOdkial, int pVzdialenostOdos, string pKam, int pVzdialenostPrijmatela, int pCasPridania, int pId)
 {
 	aHmotnostVGramoch = pHmotnost;
 	aOdkial = pOdkial;
@@ -10,6 +10,7 @@ Objednavka::Objednavka(int pHmotnost, string pOdkial, int pVzdialenostOdos, stri
 	aKam = pKam;
 	aVzdialenostAdresata = pVzdialenostPrijmatela;
 	aCasPridania = pCasPridania;
+	aId = pId;
 }
 
 
